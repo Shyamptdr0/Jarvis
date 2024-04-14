@@ -1,11 +1,18 @@
 const content = document.querySelector('.content');
 let isListening = false;
+let selectedVoiceURI = localStorage.getItem('selectedVoiceURI') || null; // Retrieve selected voice URI from local storage
 
 function speak(text) {
     const text_speak = new SpeechSynthesisUtterance(text);
     text_speak.rate = 1;
     text_speak.volume = 1;
     text_speak.pitch = 1;
+    
+    if (selectedVoiceURI) {
+        const selectedVoice = window.speechSynthesis.getVoices().find(voice => voice.voiceURI === selectedVoiceURI);
+        text_speak.voice = selectedVoice;
+    }
+    
     window.speechSynthesis.speak(text_speak);
 }
 
@@ -26,6 +33,52 @@ function wishMe() {
     // Start listening for user commands after greeting
     setTimeout(startListening, 2000); // Delay starting listening for 2 seconds after greeting
 }
+
+// Rest of the code remains the same
+
+// Voice selection dropdown
+const voiceSelect = document.getElementById('voiceSelect');
+
+// Update voices immediately and whenever they are loaded
+updateVoices();
+window.speechSynthesis.onvoiceschanged = updateVoices;
+
+function updateVoices() {
+    // Clear previous options
+    voiceSelect.innerHTML = '';
+    // Add an option for each available voice
+    window.speechSynthesis.getVoices().forEach(voice => {
+        const option = document.createElement('option');
+        option.textContent = voice.name;
+        option.setAttribute('value', voice.voiceURI);
+        if (voice.voiceURI === selectedVoiceURI) {
+            option.selected = true;
+        }
+        voiceSelect.appendChild(option);
+    });
+}
+
+// Event listener for voice selection change
+voiceSelect.addEventListener('change', () => {
+    selectedVoiceURI = voiceSelect.value; // Store the selected voice URI
+    localStorage.setItem('selectedVoiceURI', selectedVoiceURI); // Store selected voice URI in local storage
+    
+    // Change the greeting text to reflect the selected voice
+    const selectedVoice = window.speechSynthesis.getVoices().find(voice => voice.voiceURI === selectedVoiceURI);
+    if (selectedVoice) {
+        const greeting = document.querySelector('.greeting');
+        greeting.textContent = `Initializing Jarvis with ${selectedVoice.name}...`;
+    }
+});
+
+// Rest of the code remains the same
+
+// Rest of the code remains the same
+
+
+// Rest of the code remains the same
+
+// Rest of the code remains the same
 
 
 function startListening() {
